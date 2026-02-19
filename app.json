@@ -1,0 +1,54 @@
+{
+  "expo": {
+    "name": "Cupboard",
+    "slug": "cupboard",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "scheme": "cupboard",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cupboard.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Cupboard needs camera access to scan barcodes, receipts, and ingredients.",
+        "NSPhotoLibraryUsageDescription": "Cupboard needs photo library access to add recipe and ingredient images."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.cupboard.app",
+      "permissions": ["CAMERA"]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Cupboard needs camera access to scan barcodes, receipts, and ingredients."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Cupboard needs photo library access to add recipe and ingredient images."
+        }
+      ],
+      "expo-secure-store"
+    ]
+  }
+}
