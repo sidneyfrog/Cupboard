@@ -31,7 +31,7 @@ export function PantryItemForm({
   loading = false,
 }: PantryItemFormProps) {
   const [name, setName] = useState(initialValues?.name ?? '');
-  const [quantity, setQuantity] = useState(String(initialValues?.quantity ?? ''));
+  const [quantity, setQuantity] = useState(String(initialValues?.quantity ?? 1));
   const [unit, setUnit] = useState<Unit>(initialValues?.unit ?? 'units');
   const [category, setCategory] = useState<PantryCategory>(initialValues?.category ?? 'Other');
   const [expiryDate, setExpiryDate] = useState(initialValues?.expiryDate ?? '');
@@ -61,7 +61,7 @@ export function PantryItemForm({
   };
 
   return (
-    <ScrollView className="flex-1 bg-white px-4 pt-4">
+    <ScrollView className="flex-1 bg-white px-4 pt-4" keyboardShouldPersistTaps="handled">
       <FormField
         label={PANTRY_STRINGS.NAME_LABEL}
         placeholder={PANTRY_STRINGS.NAME_PLACEHOLDER}
