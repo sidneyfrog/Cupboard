@@ -18,7 +18,7 @@ export default function RootLayout() {
       <StatusBar style="dark" />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="auth" options={{ headerShown: false }} />
+        <Stack.Screen name="auth/index" options={{ headerShown: false }} />
         <Stack.Screen
           name="pantry/add"
           options={{ headerShown: true, title: 'Add Item', presentation: 'modal' }}

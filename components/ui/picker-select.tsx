@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, Modal, FlatList, SafeAreaView } from 'react-native';
+import { View, Text, Pressable, Modal, FlatList } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { COMMON_STRINGS } from '@/constants/strings';
 
 interface PickerSelectProps {

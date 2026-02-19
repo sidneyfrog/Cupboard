@@ -18,10 +18,7 @@ export default function TabsLayout() {
         headerStyle: {
           backgroundColor: COLORS.white,
         },
-        headerTitleStyle: {
-          fontWeight: '700',
-          color: COLORS.neutral[800],
-        },
+        headerTintColor: COLORS.neutral[800],
       }}
     >
       <Tabs.Screen
