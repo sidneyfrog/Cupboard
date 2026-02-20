@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { Alert, View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { usePantry } from '@/hooks/use-pantry';
 import { PantryItemForm } from '@/components/pantry/pantry-item-form';
 import { ErrorMessage } from '@/components/ui/error-message';
+import { COMMON_STRINGS } from '@/constants/strings';
 import type { PantryCategory, Unit } from '@/constants/categories';
 
 /** Screen for editing an existing pantry item. */
@@ -33,9 +34,18 @@ export default function EditPantryItemScreen() {
     imageUrl?: string;
   }) => {
     setLoading(true);
-    await editItem(id, values);
-    setLoading(false);
-    router.back();
+    try {
+      const updated = await editItem(id, values);
+      if (!updated) {
+        Alert.alert(COMMON_STRINGS.ERROR, 'Failed to update item. Please try again.');
+        return;
+      }
+      router.back();
+    } catch {
+      Alert.alert(COMMON_STRINGS.ERROR, 'Failed to update item. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { usePantry } from '@/hooks/use-pantry';
 import { useAuthStore } from '@/store/auth-store';
 import { PantryItemForm } from '@/components/pantry/pantry-item-form';
+import { COMMON_STRINGS } from '@/constants/strings';
 import type { PantryCategory, Unit } from '@/constants/categories';
 
 /** Screen for manually adding a new item to the pantry. */
@@ -23,12 +25,21 @@ export default function AddPantryItemScreen() {
   }) => {
     if (!user) return;
     setLoading(true);
-    await createItem({
-      ...values,
-      userId: user.id,
-    });
-    setLoading(false);
-    router.back();
+    try {
+      const created = await createItem({
+        ...values,
+        userId: user.id,
+      });
+      if (!created) {
+        Alert.alert(COMMON_STRINGS.ERROR, 'Failed to save item. Please try again.');
+        return;
+      }
+      router.back();
+    } catch {
+      Alert.alert(COMMON_STRINGS.ERROR, 'Failed to save item. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
