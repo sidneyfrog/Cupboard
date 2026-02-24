@@ -52,7 +52,17 @@ export async function getUserProfile(userId: string): Promise<User> {
     .single();
 
   if (error) throw new Error(error.message);
-  return data as User;
+  return mapRowToUser(data);
+}
+
+/** Maps a snake_case database row to a camelCase User object. */
+function mapRowToUser(row: Record<string, unknown>): User {
+  return {
+    id: row.id as string,
+    email: row.email as string,
+    displayName: row.display_name as string,
+    preferences: row.preferences as User['preferences'],
+  };
 }
 
 /** Creates a new user profile in the users table. */
@@ -60,32 +70,38 @@ export async function createUserProfile(input: CreateUserInput): Promise<User> {
   const { data: authData } = await supabase.auth.getUser();
   if (!authData.user) throw new Error('No authenticated user found.');
 
-  const profile = {
+  const row = {
     id: authData.user.id,
-    ...input,
+    email: input.email,
+    display_name: input.displayName,
+    preferences: input.preferences,
   };
 
   const { data, error } = await supabase
     .from('users')
-    .insert(profile)
+    .insert(row)
     .select()
     .single();
 
   if (error) throw new Error(error.message);
-  return data as User;
+  return mapRowToUser(data);
 }
 
 /** Updates the current user's profile. */
 export async function updateUserProfile(userId: string, updates: UpdateUserInput): Promise<User> {
+  const row: Record<string, unknown> = {};
+  if (updates.displayName !== undefined) row.display_name = updates.displayName;
+  if (updates.preferences !== undefined) row.preferences = updates.preferences;
+
   const { data, error } = await supabase
     .from('users')
-    .update(updates)
+    .update(row)
     .eq('id', userId)
     .select()
     .single();
 
   if (error) throw new Error(error.message);
-  return data as User;
+  return mapRowToUser(data);
 }
 
 /** Listens for auth state changes and calls the provided callback. Returns an unsubscribe function. */
