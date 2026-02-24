@@ -32,6 +32,7 @@ export function useAuth() {
       try {
         const profile = await authService.signInWithEmail(email, password);
         setUser(profile);
+        setLoading(false);
         return { success: true, error: null };
       } catch {
         setLoading(false);
@@ -47,6 +48,7 @@ export function useAuth() {
       try {
         const profile = await authService.signUpWithEmail(email, password, displayName);
         setUser(profile);
+        setLoading(false);
         return { success: true, error: null };
       } catch {
         setLoading(false);
