@@ -33,8 +33,9 @@ async function saveLocalUsers(users: LocalUserRecord[]): Promise<void> {
 /** Signs in a user with email and password. Returns the user profile. */
 export async function signInWithEmail(email: string, password: string): Promise<User> {
   if (!isSupabaseConfigured) {
+    const normalizedEmail = email.trim().toLowerCase();
     const users = await getLocalUsers();
-    const record = users.find((u) => u.email === email);
+    const record = users.find((u) => u.email === normalizedEmail);
     if (!record || record.password !== password) {
       throw new Error('Invalid email or password.');
     }
@@ -56,13 +57,14 @@ export async function signUpWithEmail(
   displayName: string
 ): Promise<User> {
   if (!isSupabaseConfigured) {
+    const normalizedEmail = email.trim().toLowerCase();
     const users = await getLocalUsers();
-    if (users.some((u) => u.email === email)) {
+    if (users.some((u) => u.email === normalizedEmail)) {
       throw new Error('An account with this email already exists.');
     }
     const record: LocalUserRecord = {
       id: generateId(),
-      email,
+      email: normalizedEmail,
       password,
       displayName,
       preferences: { dietaryRestrictions: [], cuisinePreferences: [] },
