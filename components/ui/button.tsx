@@ -1,6 +1,5 @@
 import React from 'react';
-import { Text, ActivityIndicator } from 'react-native';
-import { Pressable } from 'react-native-gesture-handler';
+import { Pressable, Text, ActivityIndicator } from 'react-native';
 
 interface ButtonProps {
   label: string;
