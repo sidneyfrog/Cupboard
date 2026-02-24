@@ -2,9 +2,11 @@ import { useCallback, useEffect } from 'react';
 import { useRecipeStore } from '@/store/recipe-store';
 import { useAuthStore } from '@/store/auth-store';
 import { usePantryStore } from '@/store/pantry-store';
+import { isSupabaseConfigured } from '@/config/supabase';
 import * as recipeService from '@/services/recipe-service';
 import { getRecommendedRecipes } from '@/services/recommendation-service';
-import type { CreateRecipeInput, UpdateRecipeInput } from '@/types';
+import { generateId, nowISO } from '@/utils';
+import type { CreateRecipeInput, UpdateRecipeInput, Recipe } from '@/types';
 import { RECIPE_STRINGS } from '@/constants/strings';
 
 /** Hook providing recipe CRUD, favourites, recommendations, and pantry deduction. */
@@ -36,6 +38,11 @@ export function useRecipes() {
 
   const loadRecipes = useCallback(async () => {
     if (!user) return;
+    if (!isSupabaseConfigured) {
+      // Local mode: Zustand store is already hydrated from AsyncStorage
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -51,6 +58,15 @@ export function useRecipes() {
   const createRecipe = useCallback(
     async (input: CreateRecipeInput) => {
       setError(null);
+      if (!isSupabaseConfigured) {
+        const recipe: Recipe = {
+          ...input,
+          id: generateId(),
+          createdAt: nowISO(),
+        };
+        addRecipe(recipe);
+        return recipe;
+      }
       try {
         const created = await recipeService.createRecipe(input);
         addRecipe(created);
@@ -66,6 +82,11 @@ export function useRecipes() {
   const editRecipe = useCallback(
     async (id: string, updates: UpdateRecipeInput) => {
       setError(null);
+      if (!isSupabaseConfigured) {
+        updateStoreRecipe(id, updates);
+        const updated = recipes.find((r) => r.id === id);
+        return updated ? { ...updated, ...updates } : null;
+      }
       try {
         const updated = await recipeService.updateRecipe(id, updates);
         updateStoreRecipe(id, updated);
@@ -75,12 +96,16 @@ export function useRecipes() {
         return null;
       }
     },
-    [updateStoreRecipe, setError]
+    [recipes, updateStoreRecipe, setError]
   );
 
   const deleteRecipe = useCallback(
     async (id: string) => {
       setError(null);
+      if (!isSupabaseConfigured) {
+        removeRecipe(id);
+        return;
+      }
       try {
         await recipeService.deleteRecipe(id);
         removeRecipe(id);
@@ -96,6 +121,7 @@ export function useRecipes() {
       const recipe = recipes.find((r) => r.id === id);
       if (!recipe) return;
       toggleStoreFavourite(id);
+      if (!isSupabaseConfigured) return;
       try {
         await recipeService.toggleRecipeFavourite(id, !recipe.isFavourite);
       } catch {
@@ -148,7 +174,7 @@ export function useRecipes() {
   }, [refreshRecommendations]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !isSupabaseConfigured) return;
     const unsubscribe = recipeService.subscribeToRecipeChanges(
       user.id,
       (recipe) => addRecipe(recipe),

@@ -1,8 +1,10 @@
 import { useCallback, useEffect } from 'react';
 import { usePantryStore } from '@/store/pantry-store';
 import { useAuthStore } from '@/store/auth-store';
+import { isSupabaseConfigured } from '@/config/supabase';
 import * as pantryService from '@/services/pantry-service';
-import type { CreatePantryItemInput, UpdatePantryItemInput } from '@/types';
+import { generateId, nowISO } from '@/utils';
+import type { CreatePantryItemInput, UpdatePantryItemInput, PantryItem } from '@/types';
 import { PANTRY_STRINGS } from '@/constants/strings';
 
 /** Hook providing pantry CRUD operations with loading/error state management. */
@@ -29,6 +31,11 @@ export function usePantry() {
 
   const loadPantry = useCallback(async () => {
     if (!user) return;
+    if (!isSupabaseConfigured) {
+      // Local mode: Zustand store is already hydrated from AsyncStorage
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -44,6 +51,15 @@ export function usePantry() {
   const createItem = useCallback(
     async (input: CreatePantryItemInput) => {
       setError(null);
+      if (!isSupabaseConfigured) {
+        const item: PantryItem = {
+          ...input,
+          id: generateId(),
+          dateAdded: nowISO(),
+        };
+        addItem(item);
+        return item;
+      }
       try {
         const created = await pantryService.createPantryItem(input);
         addItem(created);
@@ -59,6 +75,11 @@ export function usePantry() {
   const editItem = useCallback(
     async (id: string, updates: UpdatePantryItemInput) => {
       setError(null);
+      if (!isSupabaseConfigured) {
+        updateStoreItem(id, updates);
+        const updated = items.find((i) => i.id === id);
+        return updated ? { ...updated, ...updates } : null;
+      }
       try {
         const updated = await pantryService.updatePantryItem(id, updates);
         updateStoreItem(id, updated);
@@ -68,12 +89,16 @@ export function usePantry() {
         return null;
       }
     },
-    [updateStoreItem, setError]
+    [items, updateStoreItem, setError]
   );
 
   const deleteItem = useCallback(
     async (id: string) => {
       setError(null);
+      if (!isSupabaseConfigured) {
+        removeItem(id);
+        return;
+      }
       try {
         await pantryService.deletePantryItem(id);
         removeItem(id);
@@ -87,6 +112,10 @@ export function usePantry() {
   const bulkDelete = useCallback(
     async (ids: string[]) => {
       setError(null);
+      if (!isSupabaseConfigured) {
+        removeItems(ids);
+        return;
+      }
       try {
         await pantryService.deletePantryItems(ids);
         removeItems(ids);
@@ -123,7 +152,7 @@ export function usePantry() {
   }, [loadPantry]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !isSupabaseConfigured) return;
     const unsubscribe = pantryService.subscribeToPantryChanges(
       user.id,
       (item) => addItem(item),

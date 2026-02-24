@@ -31,6 +31,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
 const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
+/** True when real Supabase credentials are provided. False triggers local-only mode. */
+export const isSupabaseConfigured =
+  SUPABASE_URL.length > 0 &&
+  !SUPABASE_URL.includes('your-project') &&
+  SUPABASE_ANON_KEY.length > 0 &&
+  !SUPABASE_ANON_KEY.includes('your-anon-key');
+
 /** Configured Supabase client with AsyncStorage for session persistence. */
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
