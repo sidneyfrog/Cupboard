@@ -114,6 +114,12 @@ export const PROFILE_STRINGS = {
   PREFERENCES_SAVED: 'Preferences saved',
 } as const;
 
+export const AUTH_REQUIRED_STRINGS = {
+  TITLE: 'Sign In Required',
+  MESSAGE: 'You need to sign in before you can add items. Create a free account to get started.',
+  SIGN_IN: 'Sign In',
+} as const;
+
 export const COMMON_STRINGS = {
   LOADING: 'Loading...',
   ERROR: 'Something went wrong. Please try again.',

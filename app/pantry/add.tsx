@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { usePantry } from '@/hooks/use-pantry';
 import { useAuthStore } from '@/store/auth-store';
 import { PantryItemForm } from '@/components/pantry/pantry-item-form';
-import { COMMON_STRINGS } from '@/constants/strings';
+import { COMMON_STRINGS, AUTH_REQUIRED_STRINGS } from '@/constants/strings';
 import type { PantryCategory, Unit } from '@/constants/categories';
 
 /** Screen for manually adding a new item to the pantry. */
@@ -23,7 +23,13 @@ export default function AddPantryItemScreen() {
     barcode?: string;
     imageUrl?: string;
   }) => {
-    if (!user) return;
+    if (!user) {
+      Alert.alert(AUTH_REQUIRED_STRINGS.TITLE, AUTH_REQUIRED_STRINGS.MESSAGE, [
+        { text: COMMON_STRINGS.CANCEL, style: 'cancel' },
+        { text: AUTH_REQUIRED_STRINGS.SIGN_IN, onPress: () => router.replace('/auth') },
+      ]);
+      return;
+    }
     setLoading(true);
     try {
       const created = await createItem({

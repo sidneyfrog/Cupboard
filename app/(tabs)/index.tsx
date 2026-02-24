@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, SectionList, Pressable, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { usePantry } from '@/hooks/use-pantry';
+import { useRequireAuth } from '@/hooks/use-require-auth';
 import { SearchBar } from '@/components/ui/search-bar';
 import { CategoryFilter } from '@/components/pantry/category-filter';
 import { PantryItemCard } from '@/components/pantry/pantry-item-card';
@@ -13,6 +14,7 @@ import { PANTRY_STRINGS } from '@/constants/strings';
 /** Main pantry screen listing all items grouped by category. */
 export default function PantryScreen() {
   const router = useRouter();
+  const requireAuth = useRequireAuth();
   const {
     groupedItems,
     isLoading,
@@ -78,7 +80,7 @@ export default function PantryScreen() {
         <EmptyState
           message={PANTRY_STRINGS.EMPTY_STATE}
           actionLabel={PANTRY_STRINGS.ADD_ITEM}
-          onAction={() => router.push('/pantry/add')}
+          onAction={() => requireAuth(() => router.push('/pantry/add'))}
         />
       ) : (
         <SectionList
@@ -101,13 +103,13 @@ export default function PantryScreen() {
 
       <View className="absolute bottom-6 right-4 flex-row">
         <Pressable
-          onPress={() => router.push('/pantry/quick-add')}
+          onPress={() => requireAuth(() => router.push('/pantry/quick-add'))}
           className="mr-3 h-12 items-center justify-center rounded-full bg-accent-500 px-5 shadow-md"
         >
           <Text className="text-sm font-semibold text-white">{PANTRY_STRINGS.QUICK_ADD}</Text>
         </Pressable>
         <Pressable
-          onPress={() => router.push('/pantry/add')}
+          onPress={() => requireAuth(() => router.push('/pantry/add'))}
           className="h-14 w-14 items-center justify-center rounded-full bg-primary-500 shadow-md"
         >
           <Text className="text-2xl text-white">+</Text>
