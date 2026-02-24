@@ -33,7 +33,11 @@ export const usePantryStore = create<PantryState>()(
 
       setItems: (items) => set({ items }),
 
-      addItem: (item) => set((state) => ({ items: [...state.items, item] })),
+      addItem: (item) =>
+        set((state) => {
+          if (state.items.some((i) => i.id === item.id)) return state;
+          return { items: [...state.items, item] };
+        }),
 
       updateItem: (id, updates) =>
         set((state) => ({

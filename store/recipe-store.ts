@@ -39,7 +39,10 @@ export const useRecipeStore = create<RecipeState>()(
       setRecipes: (recipes) => set({ recipes }),
 
       addRecipe: (recipe) =>
-        set((state) => ({ recipes: [...state.recipes, recipe] })),
+        set((state) => {
+          if (state.recipes.some((r) => r.id === recipe.id)) return state;
+          return { recipes: [...state.recipes, recipe] };
+        }),
 
       updateRecipe: (id, updates) =>
         set((state) => ({
